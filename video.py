@@ -103,8 +103,8 @@ class Video(object):
     }
     
     media_id = str(self.media_id)
-    rtmp = 'true' if self.config.video['rtmp'] else 'false'
-    url = 'http://www.viki.com/player/medias/' + media_id + '/info.json?rtmp=' + rtmp + '&source=direct&embedding_uri=www.viki.com'
+    rtmp = '&rtmp' if self.config.video['rtmp'] else ''
+    url = 'http://www.viki.com/player/media_resources/%s/info.json?source=direct&embedding_uri=www.viki.com%s' % (media_id, rtmp)
     
     headers = {
       'Host' : 'www.viki.com',
@@ -119,7 +119,6 @@ class Video(object):
     }
     
     resp, content = httplib2.Http(".cache").request(url, "GET", headers=headers)
-    
     obj = json.loads(content)
     
     return obj
@@ -143,9 +142,9 @@ class Video(object):
         If not specified than default is ['1080', '720', '480', '380', '240']
       video_info - info to extract filename from. If not specified, then it is grabbed from the server
     """
-    
-    for stream in video_info['streams']:
-      for res in resolutions:
+
+    for res in resolutions:
+      for stream in video_info['streams']:
         if str(res) + 'p' in stream['quality']:
           return stream['uri']
     print video_info
@@ -168,13 +167,16 @@ class Video(object):
       
     return self.stream_url(resolutions, video_info).split('/')[-1]
     
-  def video_url(self, resolutions):
+  def video_url(self, resolutions = None):
     """
       Get the video url for the resolution
       
       optional resolution - List of of acceptable resolutions. Highest selected. 
         If not specified than default is ['1080', '720', '480', '380', '240']
     """
+
+    if resolutions == None:
+      resolutions = self.config.video['resolutions']
     
     video_info = self.video_info()
     
@@ -188,10 +190,7 @@ class Video(object):
         If not specified than default is ['1080', '720', '480', '380', '240']
     """
     
-    if resolutions == None:
-      resolutions = self.config.video['resolutions']
-    
-    url = self.video_url(resolutions)
+    url = self.video_url()
     
     if url == None:
       # raise an exception
@@ -216,4 +215,4 @@ class Video(object):
       os.chdir(out_dir)
       os.system('wget -c %s' % (url))
       os.chdir(prev_dir)
-    
+

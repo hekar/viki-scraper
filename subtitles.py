@@ -141,3 +141,21 @@ class Subtitle(object):
       
     return data 
     
+class SubtitleV4(Subtitle):
+  """
+    Subtitles in version 4 of the viki.com api
+  """
+
+  def __init__(self, config, media_id):
+    self.config = config
+    self.url = 'http://www.viki.com/subtitles/%d/language/en.json' % (media_id)
+
+  def download_data(self, format = 'srt'):
+    """
+      format - is always srt and doesn't make a difference what you pick
+    """
+    resp, content = httplib2.Http(".cache").request(self.url, "GET")
+    suburl = json.loads(content)['url']
+    resp, content = httplib2.Http(".cache").request(suburl, "GET")
+
+    return content

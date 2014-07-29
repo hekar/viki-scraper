@@ -32,6 +32,10 @@ class Config(object):
     
     # Print debugging information. Values can be 'info', 'warning', 'off'
     # self.debug = 'info'
+
+    self.single = {
+      'id': ''
+    }
     
     self.site = {
       'url' : 'http://viki.com',
